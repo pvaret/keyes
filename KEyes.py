@@ -5,8 +5,10 @@ import os
 import random
 import sys
 
-from PyQt5.QtCore import QPoint, QPointF, QRectF, QSize, QSizeF, Qt, QTimer
-from PyQt5.QtGui import (
+from PySide6.QtCore import QPoint, QPointF, QRectF, QSize, QSizeF, Qt, QTimer
+from PySide6.QtGui import (
+    QAction,
+    QActionGroup,
     QColor,
     QContextMenuEvent,
     QCursor,
@@ -16,9 +18,7 @@ from PyQt5.QtGui import (
     QPaintEvent,
     QPixmap,
 )
-from PyQt5.QtWidgets import (
-    QAction,
-    QActionGroup,
+from PySide6.QtWidgets import (
     QApplication,
     QMenu,
     QWidget,
@@ -58,9 +58,11 @@ class Eye:
             return
 
         previousRenderHint = painter.renderHints()
-        painter.setRenderHints(previousRenderHint | QPainter.Antialiasing)
+        painter.setRenderHints(
+            previousRenderHint | QPainter.RenderHint.Antialiasing
+        )
 
-        painter.setPen(Qt.NoPen)
+        painter.setPen(Qt.PenStyle.NoPen)
         painter.setBrush(QColor(253, 242, 245))
 
         painter.drawEllipse(
@@ -97,7 +99,7 @@ class Eye:
 
         pos = QPointF(px, py)
 
-        painter.setBrush(Qt.black)
+        painter.setBrush(Qt.GlobalColor.black)
         painter.drawEllipse(
             QRectF(pos - self.toPointF(self.pupil_size / 2), self.pupil_size)
         )
@@ -123,8 +125,10 @@ class KEyesWidget(QWidget):
     def __init__(self) -> None:
         super().__init__()
 
-        self.setWindowFlags(self.windowFlags() | Qt.FramelessWindowHint)
-        self.setAttribute(Qt.WA_NoSystemBackground)
+        self.setWindowFlags(
+            self.windowFlags() | Qt.WindowType.FramelessWindowHint
+        )
+        self.setAttribute(Qt.WidgetAttribute.WA_NoSystemBackground)
         self.setMouseTracking(True)
 
         self.dragPosition = QPoint(0, 0)
@@ -145,7 +149,8 @@ class KEyesWidget(QWidget):
         self.actionUpdateFace(startAction)
 
         self.actionQuit = QAction("Quit", self)
-        self.actionQuit.triggered.connect(QApplication.instance().quit)
+        if (app := QApplication.instance()) is not None:
+            self.actionQuit.triggered.connect(app.quit)
 
         self.timer = QTimer()
         self.timer.timeout.connect(self.updateFromMousePosition)
@@ -182,15 +187,16 @@ class KEyesWidget(QWidget):
             self.update()
 
     def mousePressEvent(self, event: QMouseEvent) -> None:
-        if event.button() == Qt.LeftButton:
+        if event.button() == Qt.MouseButton.LeftButton:
             self.dragPosition = (
-                event.globalPos() - self.frameGeometry().topLeft()
+                event.globalPosition().toPoint()
+                - self.frameGeometry().topLeft()
             )
             event.accept()
 
     def mouseMoveEvent(self, event: QMouseEvent) -> None:
-        if event.buttons() == Qt.LeftButton:
-            self.move(event.globalPos() - self.dragPosition)
+        if event.buttons() == Qt.MouseButton.LeftButton:
+            self.move(event.globalPosition().toPoint() - self.dragPosition)
             event.accept()
 
     def contextMenuEvent(self, event: QContextMenuEvent) -> None:
@@ -200,7 +206,7 @@ class KEyesWidget(QWidget):
         menu.addSeparator()
         menu.addAction(self.actionQuit)
 
-        menu.exec_(event.globalPos())
+        menu.exec(event.globalPos())
 
     def paintEvent(self, event: QPaintEvent) -> None:
         painter = QPainter(self)
@@ -224,7 +230,7 @@ class KEyesApplication(QApplication):
 
     def run(self) -> int:
         self.widget.show()
-        return self.exec_()
+        return self.exec()
 
 
 KEyesApplication(sys.argv).run()
