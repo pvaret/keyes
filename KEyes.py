@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import math
-import os
 import random
 import sys
 
@@ -24,14 +23,9 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+import resources
 
-def normalize_path(path: str) -> str:
-    base_path = sys.path[0]
-
-    if not base_path:
-        base_path = os.getcwd()
-
-    return os.path.join(base_path, path)
+del resources
 
 
 class Eye:
@@ -102,11 +96,27 @@ class KEyesWidget(QWidget):
     update_interval = 50  # ms
 
     faces = {
-        "Aaron": ("keyes-aaron.png", (49, 63, 12, 8), (79, 63, 12, 8)),
-        "Adrian": ("keyes-adrian.png", (46, 67, 11, 6), (74, 68, 11, 6)),
-        "Cornelius": ("keyes-cornelius.png", (49, 68, 11, 6), (79, 68, 11, 6)),
-        "Eva": ("keyes-eva.png", (51, 63, 12, 6), (83, 63, 12, 6)),
-        "Sebastian": ("keyes-sebastian.png", (50, 58, 14, 7), (83, 58, 14, 7)),
+        "Aaron": (
+            ":resources/aaron.png",
+            (49, 63, 12, 8),
+            (79, 63, 12, 8),
+        ),
+        "Adrian": (
+            ":resources/adrian.png",
+            (46, 67, 11, 6),
+            (74, 68, 11, 6),
+        ),
+        "Cornelius": (
+            ":resources/cornelius.png",
+            (49, 68, 11, 6),
+            (79, 68, 11, 6),
+        ),
+        "Eva": (":resources/eva.png", (51, 63, 12, 6), (83, 63, 12, 6)),
+        "Sebastian": (
+            ":resources/sebastian.png",
+            (50, 58, 14, 7),
+            (83, 58, 14, 7),
+        ),
     }
 
     dragPosition: QPoint
@@ -149,7 +159,7 @@ class KEyesWidget(QWidget):
 
     def setFace(self, name: str) -> None:
         self.setWindowTitle(name)
-        self.pixmap = QPixmap(normalize_path(self.faces[name][0]))
+        self.pixmap = QPixmap(self.faces[name][0])
 
         self.setWindowIcon(QIcon(self.pixmap))
 
