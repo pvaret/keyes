@@ -20,7 +20,6 @@ from PyQt5.QtWidgets import (
     QAction,
     QActionGroup,
     QApplication,
-    QLabel,
     QMenu,
     QWidget,
 )
@@ -122,7 +121,7 @@ class KEyesWidget(QWidget):
     actionFaces: QActionGroup
 
     def __init__(self) -> None:
-        QLabel.__init__(self)
+        super().__init__()
 
         self.setWindowFlags(self.windowFlags() | Qt.FramelessWindowHint)
         self.setAttribute(Qt.WA_NoSystemBackground)
@@ -220,7 +219,7 @@ class KEyesWidget(QWidget):
 
 class KEyesApplication(QApplication):
     def __init__(self, argv: list[str] = []) -> None:
-        QApplication.__init__(self, argv)
+        super().__init__(argv)
         self.widget = KEyesWidget()
 
     def run(self) -> int:
