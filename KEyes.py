@@ -41,9 +41,9 @@ class Eye:
     size: QSizeF
     pos: QPointF
 
-    def __init__(self, x: float, y: float, w: int, h: int) -> None:
-        ## x, y are the coordinates of the center of the eye.
-        ## w, h are the total width and height of the eye.
+    def __init__(self, x: int, y: int, w: int, h: int) -> None:
+        # x, y are the coordinates of the center of the eye.
+        # w, h are the total width and height of the eye.
 
         self.size = QSizeF(w, h)
         self.pos = QPointF(x, y)
@@ -51,12 +51,7 @@ class Eye:
     def toPointF(self, size: QSizeF) -> QPointF:
         return QPointF(size.width(), size.height())
 
-    def render(self, widget: "KEyesWidget") -> None:
-        painter = widget.painter
-
-        if not painter:
-            return
-
+    def render(self, relativeMouseOffset: QPoint, painter: QPainter) -> None:
         previousRenderHint = painter.renderHints()
         painter.setRenderHints(
             previousRenderHint | QPainter.RenderHint.Antialiasing
@@ -69,11 +64,7 @@ class Eye:
             QRectF(self.pos - self.toPointF(self.size / 2), self.size)
         )
 
-        mouseOffset = (
-            QPointF(widget.mousePosition)
-            - self.pos
-            - QPointF(widget.frameGeometry().topLeft())
-        )
+        mouseOffset = QPointF(relativeMouseOffset) - self.pos
 
         ox, oy = mouseOffset.x(), mouseOffset.y()
         distance = math.sqrt(ox**2 + oy**2)
@@ -148,16 +139,10 @@ class KEyesWidget(QWidget):
         startAction.setChecked(True)
         self.actionUpdateFace(startAction)
 
-        self.actionQuit = QAction("Quit", self)
-        if (app := QApplication.instance()) is not None:
-            self.actionQuit.triggered.connect(app.quit)
+        timer = QTimer(self)
+        timer.timeout.connect(self.updateFromMousePosition)
 
-        self.timer = QTimer()
-        self.timer.timeout.connect(self.updateFromMousePosition)
-
-        self.timer.start(self.update_interval)
-
-        self.painter = None
+        timer.start(self.update_interval)
 
     def actionUpdateFace(self, action: QAction) -> None:
         self.setFace(action.text())
@@ -204,33 +189,29 @@ class KEyesWidget(QWidget):
 
         menu.addActions(self.actionFaces.actions())
         menu.addSeparator()
-        menu.addAction(self.actionQuit)
+        actionQuit = QAction("Quit")
+        if (app := QApplication.instance()) is not None:
+            actionQuit.triggered.connect(app.quit)
+
+        menu.addAction(actionQuit)
 
         menu.exec(event.globalPos())
 
     def paintEvent(self, event: QPaintEvent) -> None:
         painter = QPainter(self)
-        self.painter = painter
 
         painter.drawPixmap(QPoint(0, 0), self.pixmap)
+        mouseOffset = self.mousePosition - self.frameGeometry().topLeft()
 
         for eye in self.eyes:
-            eye.render(self)
-
-        self.painter = None
+            eye.render(mouseOffset, painter)
 
     def sizeHint(self) -> QSize:
         return self.pixmap.size()
 
 
-class KEyesApplication(QApplication):
-    def __init__(self, argv: list[str] = []) -> None:
-        super().__init__(argv)
-        self.widget = KEyesWidget()
-
-    def run(self) -> int:
-        self.widget.show()
-        return self.exec()
-
-
-KEyesApplication(sys.argv).run()
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    widget = KEyesWidget()
+    widget.show()
+    app.exec()
