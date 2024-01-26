@@ -1,0 +1,9 @@
+<RCC>
+    <qresource>
+        <file>aaron.png</file>
+        <file>adrian.png</file>
+        <file>cornelius.png</file>
+        <file>eva.png</file>
+        <file>sebastian.png</file>
+    </qresource>
+</RCC>

@@ -1,9 +1,0 @@
-<RCC>
-    <qresource>
-        <file>resources/aaron.png</file>
-        <file>resources/adrian.png</file>
-        <file>resources/cornelius.png</file>
-        <file>resources/eva.png</file>
-        <file>resources/sebastian.png</file>
-    </qresource>
-</RCC>

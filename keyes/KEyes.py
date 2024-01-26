@@ -5,6 +5,7 @@ import random
 import sys
 
 from dataclasses import dataclass
+from typing import NoReturn
 
 from PySide6.QtCore import QPoint, QPointF, QRectF, QSize, QSizeF, Qt, QTimer
 from PySide6.QtGui import (
@@ -25,7 +26,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-import resources
+from keyes import resources
 
 del resources
 
@@ -108,31 +109,31 @@ class KEyesWidget(QWidget):
     faces = [
         Face(
             "Aaron",
-            ":resources/aaron.png",
+            ":aaron.png",
             (49, 63, 12, 8),
             (79, 63, 12, 8),
         ),
         Face(
             "Adrian",
-            ":resources/adrian.png",
+            ":adrian.png",
             (46, 67, 11, 6),
             (74, 68, 11, 6),
         ),
         Face(
             "Cornelius",
-            ":resources/cornelius.png",
+            ":cornelius.png",
             (49, 68, 11, 6),
             (79, 68, 11, 6),
         ),
         Face(
             "Eva",
-            ":resources/eva.png",
+            ":eva.png",
             (51, 63, 12, 6),
             (83, 63, 12, 6),
         ),
         Face(
             "Sebastian",
-            ":resources/sebastian.png",
+            ":sebastian.png",
             (50, 58, 14, 7),
             (83, 58, 14, 7),
         ),
@@ -243,8 +244,12 @@ class KEyesWidget(QWidget):
         return self.pixmap.size()
 
 
-if __name__ == "__main__":
+def main() -> NoReturn:
     app = QApplication(sys.argv)
     widget = KEyesWidget()
     widget.show()
-    app.exec()
+    sys.exit(app.exec())
+
+
+if __name__ == "__main__":
+    main()
