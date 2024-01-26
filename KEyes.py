@@ -4,6 +4,8 @@ import math
 import random
 import sys
 
+from dataclasses import dataclass
+
 from PySide6.QtCore import QPoint, QPointF, QRectF, QSize, QSizeF, Qt, QTimer
 from PySide6.QtGui import (
     QAction,
@@ -26,6 +28,14 @@ from PySide6.QtWidgets import (
 import resources
 
 del resources
+
+
+@dataclass
+class Face:
+    name: str
+    pixmap: str
+    left_eye: tuple[int, int, int, int]
+    right_eye: tuple[int, int, int, int]
 
 
 class Eye:
@@ -55,7 +65,7 @@ class Eye:
         painter.setBrush(QColor(253, 242, 245))
 
         painter.drawEllipse(
-            QRectF(self.pos - self.toPointF(self.size / 2), self.size)
+            QRectF(self.pos - self.toPointF(self.size / 2), self.size)  # type: ignore
         )
 
         mouseOffset = QPointF(relativeMouseOffset) - self.pos
@@ -86,7 +96,7 @@ class Eye:
 
         painter.setBrush(Qt.GlobalColor.black)
         painter.drawEllipse(
-            QRectF(pos - self.toPointF(self.pupil_size / 2), self.pupil_size)
+            QRectF(pos - self.toPointF(self.pupil_size / 2), self.pupil_size)  # type: ignore
         )
 
         painter.setRenderHints(previousRenderHint)
@@ -95,29 +105,38 @@ class Eye:
 class KEyesWidget(QWidget):
     update_interval = 50  # ms
 
-    faces = {
-        "Aaron": (
+    faces = [
+        Face(
+            "Aaron",
             ":resources/aaron.png",
             (49, 63, 12, 8),
             (79, 63, 12, 8),
         ),
-        "Adrian": (
+        Face(
+            "Adrian",
             ":resources/adrian.png",
             (46, 67, 11, 6),
             (74, 68, 11, 6),
         ),
-        "Cornelius": (
+        Face(
+            "Cornelius",
             ":resources/cornelius.png",
             (49, 68, 11, 6),
             (79, 68, 11, 6),
         ),
-        "Eva": (":resources/eva.png", (51, 63, 12, 6), (83, 63, 12, 6)),
-        "Sebastian": (
+        Face(
+            "Eva",
+            ":resources/eva.png",
+            (51, 63, 12, 6),
+            (83, 63, 12, 6),
+        ),
+        Face(
+            "Sebastian",
             ":resources/sebastian.png",
             (50, 58, 14, 7),
             (83, 58, 14, 7),
         ),
-    }
+    ]
 
     dragPosition: QPoint
     mousePosition: QPoint
@@ -136,16 +155,15 @@ class KEyesWidget(QWidget):
         self.mousePosition = QCursor.pos()
 
         self.actionFaces = QActionGroup(self)
-        allFaceActions: list[QAction] = []
 
-        for name in sorted(self.faces):
-            action = QAction(name, self.actionFaces)
+        for face in sorted(self.faces, key=lambda face: face.name):
+            action = QAction(face.name, self.actionFaces)
             action.setCheckable(True)
-            allFaceActions.append(action)
+            action.setData(face)
 
         self.actionFaces.triggered.connect(self.actionUpdateFace)
 
-        startAction = random.choice(allFaceActions)
+        startAction = random.choice(self.actionFaces.actions())
         startAction.setChecked(True)
         self.actionUpdateFace(startAction)
 
@@ -155,15 +173,20 @@ class KEyesWidget(QWidget):
         timer.start(self.update_interval)
 
     def actionUpdateFace(self, action: QAction) -> None:
-        self.setFace(action.text())
+        face = action.data()
+        match face:
+            case Face():
+                self.setFace(face)
+            case _:
+                pass
 
-    def setFace(self, name: str) -> None:
-        self.setWindowTitle(name)
-        self.pixmap = QPixmap(self.faces[name][0])
+    def setFace(self, face: Face) -> None:
+        self.setWindowTitle(face.name)
+        self.pixmap = QPixmap(face.pixmap)
 
         self.setWindowIcon(QIcon(self.pixmap))
 
-        self.eyes = [Eye(*self.faces[name][1]), Eye(*self.faces[name][2])]
+        self.eyes = [Eye(*face.left_eye), Eye(*face.right_eye)]
 
         self.setMask(self.pixmap.createHeuristicMask())
 
