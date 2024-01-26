@@ -1,7 +1,7 @@
 Oh my GOD what is this?
 =======================
 
-![Aaron Seigo is watching you code](blob/main/screenshots/keyes.gif?raw=true)
+![Aaron Seigo is watching you code](screenshots/keyes.gif?raw=true)
 
 The most important productivity app you didn't know you were missing.
 
