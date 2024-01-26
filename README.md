@@ -13,12 +13,12 @@ times better.
 That sounds awesome. How do I run it?
 =====================================
 
-Install Python. Install PySide6. Run `KEyes.py`. That's it.
+Install Python. Run `pip install KEyes`. Run `keyes`. That's it.
 
 
 Boring stuff
 ============
 
-Pictures are from the KDE e.v. web site and some sort of copyright certainly
-applies. KEyes.py is licensed under the GPL3 so if you want to make it
+Face pictures are from the KDE e.V. web site and some sort of copyright
+certainly applies. KEyes is licensed under the GPL3 so if you want to make it
 *even better somehow*, you can.
